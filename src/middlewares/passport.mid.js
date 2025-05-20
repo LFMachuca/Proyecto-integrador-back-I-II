@@ -33,33 +33,35 @@ passport.use(
 );
 passport.use(
   "login",
-  { passReqToCallback: true, usernameField: "email" },
-  async (req, email, password, done) => {
-    try {
-      const user = await usersManager.readBy({ email });
-      if (!user) {
-        const error = new Error("invalid credentials");
-        error.statusCode = 401;
-        throw error;
+  new LocalStrategy(
+    { passReqToCallback: true, usernameField: "email" },
+    async (req, email, password, done) => {
+      try {
+        const user = await usersManager.readBy({ email });
+        if (!user) {
+          const error = new Error("invalid credentials");
+          error.statusCode = 401;
+          throw error;
+        }
+        const verifyPassword = compareHash(password, user.password);
+        if (!verifyPassword) {
+          const error = new Error("Invalid credentials");
+          error.statusCode = 401;
+          throw error;
+        }
+        const data = {
+          user_id: user._id,
+          email: user.email,
+          role: user.role,
+        };
+        const token = createToken(data);
+        user.token = token;
+        done(null, user);
+      } catch (error) {
+        done(error);
       }
-      const verifyPassword = compareHash(password, user.password);
-      if (!verifyPassword) {
-        const error = new Error("Invalid credentials");
-        error.statusCode = 401;
-        throw error;
-      }
-      const data = {
-        user_id: user._id,
-        email: user.email,
-        role: user.role,
-      };
-      const token = createToken(data);
-      user.token = token;
-      done(null, user);
-    } catch (error) {
-      done(error);
     }
-  }
+  )
 );
 passport.use(
   "current",
@@ -77,6 +79,7 @@ passport.use(
           error.statusCode = 403;
           throw error;
         }
+        
         done(null, user);
       } catch (error) {
         done(error);

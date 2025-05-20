@@ -8,8 +8,8 @@ const registerUser = async (req, res, next) => {
     const { method, originalUrl: url } = req;
     const { _id } = req.user;
     return (
-      res.status(201),
-      json({ message: "User created", response: _id, method, url })
+      res.status(201)
+      .json({ message: "User created", response: _id, method, url })
     );
   } catch (error) {
     next(error);
@@ -75,7 +75,7 @@ authRouter.post("/login", passport.authenticate("login", optsBad), loginUser);
 authRouter.delete("/logout", passport.authenticate("current", optsForbbiden), logoutUser);
 authRouter.get("/current", passport.authenticate("current", optsForbbiden), currentUser);
 authRouter.get('/bad-auth', badAuth);
-authRouter.get('/forbidden', forbidden);
+authRouter.get('/forbidden', forbbiden);
 
 export default authRouter;
 
