@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
-import { usersManager } from "../data/managers/mongo/manager.mongo.js";
+import { usersRepository } from "../repositories/repository.js";
 import { createHash, compareHash } from "../helpers/hash.helper.js";
 import { createToken } from "../helpers/token.helper.js";
 
@@ -16,14 +16,13 @@ passport.use(
           error.statusCode = 400;
           throw error;
         }
-        let user = await usersManager.readBy({ email });
+        let user = await usersRepository.readBy({ email });
         if (user) {
           const error = new Error("Invalid credentials");
           error.statusCode = 401;
           throw error;
         }
-        req.body.password = createHash(password);
-        user = await usersManager.createOne(req.body);
+        user = await usersRepository.createOne(req.body);
         done(null, user);
       } catch (error) {
         done(error);
@@ -37,15 +36,17 @@ passport.use(
     { passReqToCallback: true, usernameField: "email" },
     async (req, email, password, done) => {
       try {
-        const user = await usersManager.readBy({ email });
+        const user = await usersRepository.readBy({ email });
         if (!user) {
-          const error = new Error("invalid credentials");
+          const error = new Error("invalid credentials email");
           error.statusCode = 401;
           throw error;
         }
+
         const verifyPassword = compareHash(password, user.password);
+        
         if (!verifyPassword) {
-          const error = new Error("Invalid credentials");
+          const error = new Error("Invalid credentials pass");
           error.statusCode = 401;
           throw error;
         }
@@ -73,14 +74,19 @@ passport.use(
     async (data, done) => {
       try {
         const { user_id, email, role } = data;
-        const user = await usersManager.readBy({ _id: user_id, email, role });
+        const user = await usersRepository.readBy({ _id: user_id, email, role });
         if (!user) {
           const error = new Error("Forbbiden");
           error.statusCode = 403;
           throw error;
         }
-        
-        done(null, user);
+        const currentUser ={
+          id: user._id,
+          name: user.name,
+          email:user.email,
+          role:user.role
+        }
+        done(null, currentUser);
       } catch (error) {
         done(error);
       }
@@ -97,7 +103,7 @@ passport.use(
     async (data, done) => {
       try {
         const { user_id, email, role } = data;
-        const user = await usersManager.readBy({ _id: user_id, email, role });
+        const user = await usersRepository.readBy({ _id: user_id, email, role });
         if (!user || user.role !== "ADMIN") {
           const error = new Error("Forbbiden");
           error.statusCode = 403;

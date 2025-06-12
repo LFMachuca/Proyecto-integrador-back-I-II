@@ -1,81 +1,24 @@
-import { Router } from "express";
-import passport from "../../middlewares/passport.mid.js";
+import RouterHelper from "../../helpers/router.helper.js";
+import passportCb from "../../middlewares/passportCb.mid.js";
+import { registerUser, loginUser, logoutUser, currentUser, badAuth, forbidden} from "../../controllers/auth.controller.js" 
+class AuthRouter extends RouterHelper {
+  constructor (){
+    super();
+    this.init();
+  }
+  init = () => {
+    this.create("/register", ["PUBLIC"],passportCb("register"), registerUser);
+    this.create("/login",["PUBLIC"],passportCb("login"), loginUser);
+    this.destroy("/logout", ["USER", "ADMIN"], logoutUser);
+    this.read("/current",["USER", "ADMIN"], currentUser);
+    this.read('/bad-auth',["PUBLIC"], badAuth);
+    this.read('/forbidden',["PUBLIC"], forbidden);
+  }
+}
 
-const authRouter = Router();
 
-const registerUser = async (req, res, next) => {
-  try {
-    const { method, originalUrl: url } = req;
-    const { _id } = req.user;
-    return (
-      res.status(201)
-      .json({ message: "User created", response: _id, method, url })
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-const loginUser = async (req, res, next) => {
-  try {
-    const { method, originalUrl: url } = req;
-    const { _id } = req.user;
-    return res
-      .status(200)
-      .cookie("token", req.user.token, { maxAge: 7 * 24 * 60 * 60 * 1000 })
-      .json({ message: "Logged in", response: _id, method, url });
-  } catch (error) {
-    next(error);
-  }
-};
-const logoutUser = async (req, res, next) => {
-  try {
-    const { method, originalUrl: url } = req;
-    return res
-      .status(200)
-      .clearCookie("token")
-      .json({ message: "Logged out", method, url });
-  } catch (error) {
-    next(error);
-  }
-};
-const currentUser = async (req, res, next) => {
-  try {
-    const { method, originalUrl: url } = req;
-    return res
-      .status(200)
-      .json({ message: "Is online", response: true, method, url });
-  } catch (error) {
-    next(error);
-  }
-};
-const badAuth = async (req, res, next) => {
-  try {
-    const error = new Error("Bad auth");
-    error.statusCode = 401;
-    throw error;
-  } catch (error) {
-    next(error);
-  }
-};
-const forbbiden = async (req, res, next) => {
-  try {
-    const error = new Error("Forbidden");
-    error.statusCode = 403;
-    throw error;
-  } catch (error) {
-    next(error);
-  }
-};
+const authRouter = (new AuthRouter()).getRouter();
 
-const optsBad = {session: false, failureRedirect: "/api/auth/bad-auth"};
-const optsForbbiden = {session: false, failureRedirect: "/api/auth/forbidden"};
-
-authRouter.post("/register", passport.authenticate("register", optsBad), registerUser);
-authRouter.post("/login", passport.authenticate("login", optsBad), loginUser);
-authRouter.delete("/logout", passport.authenticate("current", optsForbbiden), logoutUser);
-authRouter.get("/current", passport.authenticate("current", optsForbbiden), currentUser);
-authRouter.get('/bad-auth', badAuth);
-authRouter.get('/forbidden', forbbiden);
 
 export default authRouter;
 

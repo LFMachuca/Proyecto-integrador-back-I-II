@@ -1,65 +1,27 @@
-import { Router } from "express";
-import { productsManager } from "../data/managers/mongo/manager.mongo.js";
-import passport from "../middlewares/passport.mid.js"
-const viewsRouter = Router();
+import {
+  indexView,
+  loginView,
+  registerView,
+  detailsView,
+  profileView,
+  updateUserView,
+} from "../controllers/views.controller.js";
+import RouterHelper from "../helpers/router.helper.js";
 
-const indexView = async (req, res) => {
-  try {
-    const products = await productsManager.readAll();
-    res.status(200).render("index", { products });
-  } catch (error) {
-    res.status(error.statusCode || 500).render("Error", { error });
+class ViewsRouter extends RouterHelper {
+  constructor() {
+    super();
+    this.init();
   }
-};
-const loginView = async (req, res) => {
-  try {
-    res.status(200).render("login");
-  } catch (error) {
-    res.status(error.statusCode || 500).render("Error", { error });
-  }
-};
-const registerView = async (req, res) => {
-  try {
-    res.status(200).render("register");
-  } catch (error) {
-    res.status(error.statusCode || 500).render("Error", { error });
-  }
-};
-const detailsView = async (req, res) => {
-  try {
-    const { pid } = req.params;
-    const product = await productsManager.readById(pid);
-
-    res.status(200).render("details", { product });
-  } catch (error) {
-    res.status(error.statusCode || 500).render("error", { error });
-  }
-};
-const profileView = async (req, res) => {
-  try {
-    const { user } = req;
-    res.status(200).render("profile", { user });
-  } catch (error) {
-    res.status(error.statusCode || 500).render("error", { error });
-  }
-};
-const updateUserView = async (req, res) => {
-  try {
-    res.status(200).render("update-user");
-  } catch {
-    res.status(error.statusCode || 500).render("error", { error });
-  }
-};
-
-viewsRouter.get("/", indexView);
-viewsRouter.get("/login", loginView);
-viewsRouter.get("/register", registerView);
-viewsRouter.get("/details/:pid", detailsView);
-viewsRouter.get(
-  "/profile",
-  passport.authenticate("current", { session: false }),
-  profileView
-);
-viewsRouter.get("/update-user", updateUserView);
+  init = () => {
+    this.read("/", ["PUBLIC"], indexView);
+    this.read("/login", ["PUBLIC"], loginView);
+    this.read("/register", ["PUBLIC"], registerView);
+    this.read("/details/:pid", ["PUBLIC"], detailsView);
+    this.read("/profile", ["USER", "ADMIN"], profileView);
+    this.read("/update-user", ["USER", "ADMIN"], updateUserView);
+  };
+}
+const viewsRouter = new ViewsRouter().getRouter();
 
 export default viewsRouter;
