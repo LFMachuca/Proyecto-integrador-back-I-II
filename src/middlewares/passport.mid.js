@@ -4,6 +4,8 @@ import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import { usersRepository } from "../repositories/repository.js";
 import { createHash, compareHash } from "../helpers/hash.helper.js";
 import { createToken } from "../helpers/token.helper.js";
+import { verify } from "crypto";
+import verifyEmail from "../helpers/verifyEmail.helper.js";
 
 passport.use(
   "register",
@@ -23,6 +25,7 @@ passport.use(
           throw error;
         }
         user = await usersRepository.createOne(req.body);
+        await verifyEmail(user.email, user.verifyCode);
         done(null, user);
       } catch (error) {
         done(error);
@@ -38,17 +41,24 @@ passport.use(
       try {
         const user = await usersRepository.readBy({ email });
         if (!user) {
-          const error = new Error("invalid credentials email");
+          const error = new Error("invalid  email");
           error.statusCode = 401;
           throw error;
         }
 
         const verifyPassword = compareHash(password, user.password);
-        
+
         if (!verifyPassword) {
-          const error = new Error("Invalid credentials pass");
+          const error = new Error("Invalid password ");
           error.statusCode = 401;
           throw error;
+        }
+        const { isVerified } = user;
+        if (!isVerified) {
+          return done(null, null, {
+            message: "Please verify your account",
+            statusCode: 401,
+          });
         }
         const data = {
           user_id: user._id,
@@ -74,18 +84,22 @@ passport.use(
     async (data, done) => {
       try {
         const { user_id, email, role } = data;
-        const user = await usersRepository.readBy({ _id: user_id, email, role });
+        const user = await usersRepository.readBy({
+          _id: user_id,
+          email,
+          role,
+        });
         if (!user) {
           const error = new Error("Forbbiden");
           error.statusCode = 403;
           throw error;
         }
-        const currentUser ={
+        const currentUser = {
           id: user._id,
           name: user.name,
-          email:user.email,
-          role:user.role
-        }
+          email: user.email,
+          role: user.role,
+        };
         done(null, currentUser);
       } catch (error) {
         done(error);
@@ -103,7 +117,11 @@ passport.use(
     async (data, done) => {
       try {
         const { user_id, email, role } = data;
-        const user = await usersRepository.readBy({ _id: user_id, email, role });
+        const user = await usersRepository.readBy({
+          _id: user_id,
+          email,
+          role,
+        });
         if (!user || user.role !== "ADMIN") {
           const error = new Error("Forbbiden");
           error.statusCode = 403;

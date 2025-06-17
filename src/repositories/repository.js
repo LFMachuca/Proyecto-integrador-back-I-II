@@ -1,7 +1,7 @@
 import { cartsManager, productsManager, usersManager} from "../DAO/factory.js"
 import UsersDTO from "../DTO/users.dto.js"
 import ProductsDTO from "../DTO/products.dto.js"
-
+import CartsDTO from "../DTO/carts.dto.js";
 class Repository{
     constructor(manager,Dto){
         this.manager = manager;
@@ -20,9 +20,13 @@ class Repository{
       await this.manager.updateById(id, data, { new: true });
   
     destroyById = async (id) => await this.manager.destroyById(id);
+
+    updateOne = async (id,value ) => {
+      await this.manager.updateOne(id)
+    }
 }
 
 const productsRepository = new Repository(productsManager, ProductsDTO);
 const usersRepository = new Repository(usersManager, UsersDTO);
-
-export {productsRepository, usersRepository};
+const cartsRepository = new Repository(cartsManager, CartsDTO);
+export {productsRepository, usersRepository, cartsRepository};

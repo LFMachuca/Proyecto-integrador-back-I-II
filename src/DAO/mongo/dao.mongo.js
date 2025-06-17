@@ -19,6 +19,8 @@ class Manager {
     await this.model.findByIdAndUpdate(id, data, { new: true });
 
   destroyById = async (id) => await this.model.findByIdAndDelete(id);
+
+
 }
 
 const productsManager = new Manager(Product);

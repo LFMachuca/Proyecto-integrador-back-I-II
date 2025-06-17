@@ -1,3 +1,4 @@
+import { readUsersByService, updateUsersByIdService } from "../services/users.service.js";
 const registerUser = async (req, res,) => {
 
       const { _id } = req.user;
@@ -26,5 +27,13 @@ const registerUser = async (req, res,) => {
   const forbidden = async (req, res,) => {
     res.json403();
   };
-
-  export { registerUser, loginUser, logoutUser, currentUser, badAuth, forbidden}
+const verifyUser = async (req,res) => {
+  const { email, verifyCode } = req.params;
+  const user = await readUsersByService({email, verifyCode})
+  if (!user) {
+    res.json404();
+  }
+  await updateUsersByIdService(user._id, {isVerified:true})
+  res.json200(user, "Verified")
+}
+  export { registerUser, loginUser, logoutUser, currentUser, badAuth,verifyUser, forbidden}

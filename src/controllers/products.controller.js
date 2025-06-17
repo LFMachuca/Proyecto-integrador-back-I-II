@@ -11,7 +11,6 @@ const readAll = async (req,res) => {
     const response = await readAllService(filter)
     if(response.length === 0){
         json404();
-
     }
     res.json200(response);
 }

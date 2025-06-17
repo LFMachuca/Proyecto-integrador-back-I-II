@@ -1,6 +1,6 @@
 import RouterHelper from "../../helpers/router.helper.js";
 import passportCb from "../../middlewares/passportCb.mid.js";
-import { registerUser, loginUser, logoutUser, currentUser, badAuth, forbidden} from "../../controllers/auth.controller.js" 
+import { registerUser, loginUser, logoutUser, currentUser, badAuth,verifyUser, forbidden} from "../../controllers/auth.controller.js" 
 class AuthRouter extends RouterHelper {
   constructor (){
     super();
@@ -13,6 +13,7 @@ class AuthRouter extends RouterHelper {
     this.read("/current",["USER", "ADMIN"], currentUser);
     this.read('/bad-auth',["PUBLIC"], badAuth);
     this.read('/forbidden',["PUBLIC"], forbidden);
+    this.read("/verify/:email/:verifyCode", ["PUBLIC"], verifyUser)
   }
 }
 

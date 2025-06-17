@@ -19,7 +19,7 @@ const isOnline = async () => {
     }else{
       selector.innerHTML = `
       <a class="btn btn-success py-1 px-2 m-1" href="/profile">Profile</a>
-      <a class="btn btn-success py-1 px-2 m-1" href="cart">Cart</a>
+      <a class="btn btn-success py-1 px-2 m-1" href="/cart">Cart</a>
       <button class="btn btn-danger py-1 px-2 m-1" id="signout">Sign Out</button>
      `;
     }
