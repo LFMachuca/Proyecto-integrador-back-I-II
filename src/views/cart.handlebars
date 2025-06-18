@@ -3,11 +3,10 @@
   {{#each cart}}
     <div class="card m-1" style="width: 18rem;">
       <div class="card-body">
-        <h5 class="card-title">{{this.title}}</h5>
-        <p class="card-text">USD{{this.price}}</p>
-        <a href="/details/{{this._id}}" class="btn btn-primary">Detalle</a>
+        <h5 class="card-title">{{this.product_id.title}}</h5>
+        <p class="card-text">USD:{{this.product_id.price}}</p>
+        <p class="card-text">Quantity:{{this.quantity}}</p>
       </div>
     </div>
   {{/each}}
 </section>
-<script src="/scripts/Cart.js"></script>

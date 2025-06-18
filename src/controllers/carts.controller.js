@@ -1,4 +1,4 @@
-import { readCartService, addProductService } from "../services/carts.service.js";
+import { readCartService, addProductService, readProductsByService,updateProductsByIdService } from "../services/carts.service.js";
 
 const readCart = async (req,res)=>{
     const {_id } = req.user;
@@ -6,11 +6,15 @@ const readCart = async (req,res)=>{
     res.json200(response);
 }
 const addProduct = async (req,res)=>{
-    const data = req.body;
+    const data= req.body;
     data.user_id = req.user._id
-    data.product_id = req.params;
-
-    const response = await addProductService(data)
+    const product = await readProductsByService({product_id:data.product_id})
+    if (!product) {
+        const response = await addProductService(data)
+         return res.json200(response)
+    }
+    const quantity = data.quantity + product.quantity;
+    const response = await updateProductsByIdService(product._id,{quantity:quantity})
     res.json200(response)
 }
 

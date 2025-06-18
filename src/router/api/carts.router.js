@@ -9,7 +9,7 @@ class CartsRouter extends RouterHelper {
   }
   init = () => {
     this.read("/", ["USER"], readCart);
-    this.create("/add/:id", ["USER"], addProduct);
+    this.create("/add", ["USER"], addProduct);
     // this.read("/:id", ["PUBLIC"], readById);
     // this.update("/update", ["USER"], updateProduct);
     // this.destroy("/:id", ["ADMIN"], destroyById);

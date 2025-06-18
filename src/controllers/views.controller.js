@@ -4,7 +4,6 @@ import {
 } from "../services/products.service.js";
 import { readCartService } from "../services/carts.service.js";
 import { readUsersByService } from "../services/users.service.js";
-import resetPassword from "../helpers/resetPassword.helper.js";
 const indexView = async (req, res) => {
   const products = await readAllService();
   res.status(200).render("index", { products });
@@ -30,7 +29,7 @@ const updateUserView = async (req, res) => {
 };
 const cartView = async (req,res) =>{
   const { _id } = req.user
-  const cart = await readAllService({user_id:_id})
+  const cart = await readCartService({user_id:_id})
   res.status(200).render("cart", {cart})
 }
 const verifyView = async (req,res) => {

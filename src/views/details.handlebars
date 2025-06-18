@@ -5,7 +5,8 @@
         <div class="card-body d-flex flex-column justify-content-center">
             <h5 class="card-title">{{product.title}}</h5>
             <p class="card-text">USD{{product.price}}</p>
-            <button class="btn btn-success" id="add" value={{produc._id}}>Add to cart</button>
+            <input type="number" name="quantity" id="product-quantity">
+            <button class="btn btn-success" id="add" value={{product._id}}>Add to cart</button>
         </div>
     </div>
 </section>

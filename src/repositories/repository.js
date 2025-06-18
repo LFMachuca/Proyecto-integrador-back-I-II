@@ -21,9 +21,6 @@ class Repository{
   
     destroyById = async (id) => await this.manager.destroyById(id);
 
-    updateOne = async (id,value ) => {
-      await this.manager.updateOne(id)
-    }
 }
 
 const productsRepository = new Repository(productsManager, ProductsDTO);
